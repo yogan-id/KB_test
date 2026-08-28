@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keyboard Test — EliteBook</title>
+<style>
+  :root{
+    --bg: #cfd0c8;
+    --bg-deck: #b7b8af;
+    --key: #23241f;
+    --key-top: #2c2d27;
+    --key-border: #14140f;
+    --legend: #eceae2;
+    --accent: #37c99a;
+    --hit: #f2d13b;
+    --hit-glow: rgba(242,209,59,.55);
+    --panel: #1a1b17;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 20% -10%, #dcdcd2, transparent 60%),
+      var(--bg);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color:#1c1c18;
+    min-height:100vh;
+    padding: 28px 16px 60px;
+  }
+  .brand{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    max-width:1180px;
+    margin:0 auto 4px;
+    padding: 0 6px;
+  }
+  .brand h1{
+    font-family: 'Consolas','Courier New',monospace;
+    letter-spacing:.35em;
+    font-size:13px;
+    font-weight:700;
+    margin:0;
+    color:#4a4a42;
+  }
+  .brand .logo{
+    font-family: 'Consolas','Courier New',monospace;
+    font-size:11px;
+    letter-spacing:.2em;
+    color:#8a8b82;
+  }
+
+  .stagebox{
+    max-width:1180px;
+    margin: 10px auto 26px;
+    background: var(--panel);
+    border-radius:14px;
+    padding:16px 22px;
+    display:flex;
+    gap:22px;
+    align-items:center;
+    flex-wrap:wrap;
+    color:#dedcd0;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  }
+  .stagebox .lastkey{
+    font-family:'Consolas','Courier New',monospace;
+    font-size:34px;
+    font-weight:700;
+    color: var(--hit);
+    min-width:64px;
+    text-align:center;
+    background:#111209;
+    border-radius:8px;
+    padding:6px 14px;
+    border:1px solid #33342a;
+  }
+  .stagebox .meta{
+    font-family:'Consolas','Courier New',monospace;
+    font-size:12px;
+    line-height:1.7;
+    color:#a9a795;
+  }
+  .stagebox .meta b{color:#eceae2;}
+  .stagebox .progress{
+    margin-left:auto;
+    font-family:'Consolas','Courier New',monospace;
+    font-size:13px;
+    color:#8fd8be;
+  }
+  .stagebox button{
+    font-family:'Consolas','Courier New',monospace;
+    background:transparent;
+    color:#c9c7ba;
+    border:1px solid #444539;
+    padding:8px 14px;
+    border-radius:7px;
+    cursor:pointer;
+    font-size:12px;
+    letter-spacing:.05em;
+  }
+  .stagebox button:hover{border-color: var(--accent); color:var(--accent);}
+
+  .deck{
+    max-width:1180px;
+    margin: 0 auto;
+    background: var(--bg-deck);
+    border-radius: 18px;
+    padding: 26px 20px 20px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 20px 40px rgba(0,0,0,.15);
+  }
+
+  .kb{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+    position:relative;
+  }
+  .row{
+    display:flex;
+    gap:5px;
+  }
+
+  .key{
+    position:relative;
+    background: linear-gradient(180deg, var(--key-top), var(--key));
+    border: 1px solid var(--key-border);
+    border-radius:6px;
+    color: var(--legend);
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    align-items:flex-start;
+    padding:5px 7px;
+    height:46px;
+    font-size:12px;
+    font-family:'Segoe UI', system-ui, sans-serif;
+    box-shadow: 0 2px 0 rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.05);
+    transition: transform .04s ease, box-shadow .04s ease, background .12s ease;
+    user-select:none;
+    overflow:hidden;
+  }
+  .key .sub{
+    position:absolute;
+    top:5px; right:7px;
+    font-size:10px;
+    color:#8f9186;
+  }
+  .key .sub2{
+    position:absolute;
+    top:5px; left:7px;
+    font-size:10px;
+    color: var(--accent);
+  }
+
+  .key.arrowblock{
+    padding:0; background:transparent; border:none; box-shadow:none;
+    overflow:visible; height:auto; align-self:stretch;
+    display:flex; flex-direction:row; justify-content:flex-start; align-items:stretch; gap:5px;
+  }
+  .arrow-side{ flex:1; height:auto; padding:0; align-items:center; justify-content:center; }
+  .updown-key{
+    flex:1.5;
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    padding:0;
+    overflow:hidden;
+  }
+  .updown-half{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition: background .12s ease;
+  }
+  .updown-half:first-child{ border-bottom:1px solid rgba(0,0,0,.55); box-shadow: inset 0 -1px 0 rgba(255,255,255,.06); }
+  .arrow-icon{ width:15px; height:15px; }
+  .arrow-icon path{ fill:none; stroke:var(--legend); stroke-width:2.1; stroke-linecap:round; stroke-linejoin:round; transition:stroke .12s ease; }
+  .updown-half.hit{ background: linear-gradient(180deg, #3a3f2c, var(--accent)); }
+  .updown-half.hit .arrow-icon path{ stroke:#0e0f0a; }
+  .updown-half.done{ box-shadow: inset 0 0 0 2px var(--accent); }
+  .key.hit .arrow-icon path{ stroke:#0e0f0a; }
+
+  .key.enter-simple{ align-items:center; justify-content:center; padding:0; }
+  .enter-icon-simple{ width:16px; height:16px; }
+  .enter-icon-simple path{ fill:none; stroke:var(--legend); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .key.hit .enter-icon-simple path{ stroke:#0e0f0a; }
+
+  .key.hit{
+    background: linear-gradient(180deg, #3a3f2c, var(--accent));
+    color:#0e0f0a;
+    border-color: var(--accent);
+    transform: translateY(2px);
+    box-shadow: 0 0 0 3px var(--hit-glow), 0 1px 0 rgba(0,0,0,.5);
+  }
+  .key.hit .sub, .key.hit .sub2{ color:#0e0f0a; }
+
+  .key.done{
+    outline: 2px solid var(--accent);
+    outline-offset:-2px;
+  }
+
+  footer{
+    max-width:1180px;
+    margin: 18px auto 0;
+    padding: 0 6px;
+    font-size:12px;
+    color:#6f7066;
+    font-family:'Consolas','Courier New',monospace;
+    display:flex;
+    justify-content:space-between;
+  }
+
+  @media (max-width: 900px){
+    .deck{ overflow-x:auto; }
+    .kb{ min-width: 900px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="brand">
+    <h1>ELITEBOOK · KEYBOARD TEST</h1>
+    <div class="logo">HP</div>
+  </div>
+
+  <div class="stagebox">
+    <div class="lastkey" id="lastKey">—</div>
+    <div class="meta">
+      <div>key: <b id="metaKey">—</b></div>
+      <div>code: <b id="metaCode">—</b></div>
+      <div>keyCode: <b id="metaKeyCode">—</b></div>
+    </div>
+    <div class="progress" id="progress">0 / 0 keys tested</div>
+    <button id="resetBtn">RESET</button>
+  </div>
+
+  <div class="deck">
+    <div class="kb" id="kb"></div>
+  </div>
+
+  <footer>
+    <span>press keys — tested keys light up with an outline</span>
+    <span id="clock">ready</span>
+  </footer>
+
+<script>
+// Weights measured directly from the uploaded photo (de-rotated with EXIF applied),
+// each row scaled independently to the full keyboard width, same as the real EliteBook.
+// def: [label, code, weight(default 1), sub, sub2]
+const F_ROW = [
+  ['esc','Escape',1.1],
+  ['f1','F1'],['f2','F2'],['f3','F3'],['f4','F4'],
+  ['f5','F5'],['f6','F6'],['f7','F7'],['f8','F8'],
+  ['f9','F9'],['f10','F10'],['f11','F11'],['f12','F12'],
+  ['▢','LaunchApp1'],
+  ['📞','LaunchApp2'],
+  ['📵','LaunchApp3'],
+  ['delete','Backspace',1.15],
+];
+const DIGIT_ROW = [
+  ['½','Backquote',1,'','§'],
+  ['1','Digit1',1,'!'],['2','Digit2',1,'"'],['3','Digit3',1,'#'],
+  ['4','Digit4',1,'¤'],['5','Digit5',1,'%'],['6','Digit6',1,'&'],
+  ['7','Digit7',1,'/'],['8','Digit8',1,'('],['9','Digit9',1,')'],
+  ['0','Digit0',1,'='],['+','Minus',1,'?'],['´','Equal',1,'`'],
+  ['←','Backspace2',1.55],
+];
+const QWERTY_ROW = [
+  ['tab','Tab',1.25],
+  ['Q','KeyQ'],['W','KeyW'],['E','KeyE'],['R','KeyR'],['T','KeyT'],
+  ['Y','KeyY'],['U','KeyU'],['I','KeyI'],['O','KeyO'],['P','KeyP'],
+  ['Å','BracketLeft'],['^','BracketRight2'],
+  ['','Enter',1.6],
+];
+const HOME_ROW = [
+  ['caps lock','CapsLock',1.6],
+  ['A','KeyA'],['S','KeyS'],['D','KeyD'],['F','KeyF'],['G','KeyG'],
+  ['H','KeyH'],['J','KeyJ'],['K','KeyK'],['L','KeyL'],
+  ['Æ','Semicolon'],['Ø','Quote'],['*','Backslash2',1.4],
+];
+const SHIFT_ROW = [
+  ['shift','ShiftLeft',1.45],
+  ['<','IntlBackslash',0.65],
+  ['Z','KeyZ'],['X','KeyX'],['C','KeyC'],['V','KeyV'],['B','KeyB'],
+  ['N','KeyN'],['M','KeyM'],
+  [',','Comma'],['.','Period'],['-','Slash'],
+  ['shift','ShiftRight',2.3],
+];
+const BOTTOM_ROW = [
+  ['ctrl','ControlLeft'],
+  ['fn','Fn'],
+  ['⊞','MetaLeft'],
+  ['alt','AltLeft'],
+  ['space','Space',5],
+  ['alt gr','AltRight'],
+  ['☰','ContextMenu'],
+  ['ctrl','ControlRight'],
+];
+const NAV = [['home','Home'], ['pg up','PageUp'], ['pg dn','PageDown'], ['end','End']];
+
+const kb = document.getElementById('kb');
+let totalCodes = 0;
+
+const ARROW_SVG = {
+  ArrowUp: '<path d="M4 10 L8 6 L12 10"/>',
+  ArrowDown: '<path d="M4 6 L8 10 L12 6"/>',
+  ArrowLeft: '<path d="M10 4 L6 8 L10 12"/>',
+  ArrowRight: '<path d="M6 4 L10 8 L6 12"/>',
+};
+
+function makeKeyEl(label, code, weight, sub, sub2){
+  const keyEl = document.createElement('div');
+  keyEl.className = 'key';
+  keyEl.style.flex = (weight || 1) + '';
+  if (code) keyEl.dataset.code = code;
+  if (ARROW_SVG[code]) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 16 16');
+    svg.setAttribute('class','arrow-icon');
+    svg.innerHTML = ARROW_SVG[code];
+    keyEl.appendChild(svg);
+    return keyEl;
+  }
+  if (code === 'Enter') {
+    keyEl.classList.add('enter-simple');
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 16 16');
+    svg.setAttribute('class','enter-icon-simple');
+    svg.innerHTML = '<path d="M13 4 L13 9 L5 9 M5 9 L8 6 M5 9 L8 12"/>';
+    keyEl.appendChild(svg);
+    return keyEl;
+  }
+  if (sub) { const s = document.createElement('span'); s.className='sub'; s.textContent = sub; keyEl.appendChild(s); }
+  if (sub2){ const s2 = document.createElement('span'); s2.className='sub2'; s2.textContent = sub2; keyEl.appendChild(s2); }
+  const lab = document.createElement('span'); lab.textContent = label;
+  keyEl.appendChild(lab);
+  return keyEl;
+}
+
+function buildRow(defs){
+  const rowEl = document.createElement('div');
+  rowEl.className = 'row';
+  defs.forEach(d => rowEl.appendChild(makeKeyEl(d[0], d[1], d[2], d[3], d[4])));
+  return rowEl;
+}
+
+// Rows 2-5 each end with one key of the Home/PgUp/PgDn/End strip, exactly like
+// the photographed keyboard's right-hand navigation column.
+kb.appendChild(buildRow(F_ROW));
+kb.appendChild(buildRow([...DIGIT_ROW, [NAV[0][0], NAV[0][1], 1]]));
+kb.appendChild(buildRow([...QWERTY_ROW, [NAV[1][0], NAV[1][1], 1]]));
+kb.appendChild(buildRow([...HOME_ROW, [NAV[2][0], NAV[2][1], 1]]));
+kb.appendChild(buildRow([...SHIFT_ROW, [NAV[3][0], NAV[3][1], 1]]));
+
+// Bottom row: modifiers + wide space + right modifiers + inverted-T arrow cluster
+const bottomRowEl = document.createElement('div');
+bottomRowEl.className = 'row';
+BOTTOM_ROW.forEach(d => bottomRowEl.appendChild(makeKeyEl(d[0], d[1], d[2])));
+const arrowWrap = document.createElement('div');
+arrowWrap.className = 'key arrowblock';
+arrowWrap.style.flex = '2.6';
+
+function makeChevron(code){
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 16 16');
+  svg.setAttribute('class','arrow-icon');
+  svg.innerHTML = ARROW_SVG[code];
+  return svg;
+}
+
+const leftArrow = document.createElement('div');
+leftArrow.className = 'key arrow-side';
+leftArrow.dataset.code = 'ArrowLeft';
+leftArrow.appendChild(makeChevron('ArrowLeft'));
+arrowWrap.appendChild(leftArrow);
+
+const updownKey = document.createElement('div');
+updownKey.className = 'key updown-key';
+const upHalf = document.createElement('div');
+upHalf.className = 'updown-half';
+upHalf.dataset.code = 'ArrowUp';
+upHalf.appendChild(makeChevron('ArrowUp'));
+const downHalf = document.createElement('div');
+downHalf.className = 'updown-half';
+downHalf.dataset.code = 'ArrowDown';
+downHalf.appendChild(makeChevron('ArrowDown'));
+updownKey.appendChild(upHalf);
+updownKey.appendChild(downHalf);
+arrowWrap.appendChild(updownKey);
+
+const rightArrow = document.createElement('div');
+rightArrow.className = 'key arrow-side';
+rightArrow.dataset.code = 'ArrowRight';
+rightArrow.appendChild(makeChevron('ArrowRight'));
+arrowWrap.appendChild(rightArrow);
+
+bottomRowEl.appendChild(arrowWrap);
+kb.appendChild(bottomRowEl);
+
+// Backspace/¨/* use duplicate internal codes to keep JS keys unique; map them
+// back to the real physical key so keydown lights up the right one.
+function realCode(code){
+  if (code === 'Backspace2') return 'Backspace';
+  return code;
+}
+kb.querySelectorAll('.key[data-code], .updown-half[data-code]').forEach(el => {
+  el.dataset.realCode = realCode(el.dataset.code);
+});
+totalCodes = new Set(Array.from(kb.querySelectorAll('.key[data-code], .updown-half[data-code]')).map(el => el.dataset.realCode)).size;
+
+const progressEl = document.getElementById('progress');
+const tested = new Set();
+function updateProgress(){
+  progressEl.textContent = `${tested.size} / ${totalCodes} keys tested`;
+}
+updateProgress();
+
+const lastKeyEl = document.getElementById('lastKey');
+const metaKey = document.getElementById('metaKey');
+const metaCode = document.getElementById('metaCode');
+const metaKeyCode = document.getElementById('metaKeyCode');
+
+function findKeyEls(code){
+  // real physical key may correspond to more than one dom element (e.g. Enter halves)
+  return Array.from(kb.querySelectorAll('.key[data-code], .updown-half[data-code]')).filter(el => el.dataset.realCode === code);
+}
+
+window.addEventListener('keydown', (e) => {
+  e.preventDefault();
+  const els = findKeyEls(e.code);
+  if (els.length){
+    els.forEach(el => el.classList.add('hit','done'));
+    tested.add(e.code);
+    updateProgress();
+  }
+  lastKeyEl.textContent = e.key === ' ' ? '␣' : e.key;
+  metaKey.textContent = e.key;
+  metaCode.textContent = e.code;
+  metaKeyCode.textContent = e.keyCode;
+});
+
+window.addEventListener('keyup', (e) => {
+  findKeyEls(e.code).forEach(el => el.classList.remove('hit'));
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  tested.clear();
+  kb.querySelectorAll('.key.done, .updown-half.done').forEach(k => k.classList.remove('done'));
+  updateProgress();
+  lastKeyEl.textContent = '—';
+  metaKey.textContent = '—';
+  metaCode.textContent = '—';
+  metaKeyCode.textContent = '—';
+});
+
+window.addEventListener('blur', () => window.focus());
+</script>
+</body>
+</html>
